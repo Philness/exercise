@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import DatePicker from 'react-datepicker'
+import axios from "axios"
 import "react-datepicker/dist/react-datepicker.css"
 
 export default class CreateExercise extends Component {
@@ -21,11 +22,19 @@ export default class CreateExercise extends Component {
         }
     }
 
-    componentDidMount(){
-        this.setState({
-            users: ['test user'],
-            username: "test user"
-        })
+    componentDidMount() {
+        axios.get('http://localhost:5000/users/')
+        .then(response => {
+            console.log(response)
+            if (response.data.length>0){
+                this.setState({
+                    users: response.data.map(user => user.username),
+                    username: response.data[0].username
+                })
+            }
+        }
+
+        )
     }
 
     onChangeUsername(event){
@@ -60,6 +69,8 @@ export default class CreateExercise extends Component {
         }
         console.log("submitting new exercise.")
         console.log(exercise)
+        axios.post("http://localhost:5000/exercises/add", exercise)
+            .then(result => console.log(result.data))
 
         window.location = "/" //return to this route using window.location
     }
@@ -68,7 +79,8 @@ export default class CreateExercise extends Component {
             
             <div>
             <h1>Create a new exercise log!</h1>
-            <form onSubmit = {this.onSubmit}>
+             <form onSubmit = {this.onSubmit}>  
+             {/*Strangely, the submit is called at the beginning of the form and not the end! */}
                 <div className="form-group">
                     <label>Username:</label>
                     <select ref="userInput"
@@ -76,6 +88,7 @@ export default class CreateExercise extends Component {
                     className="form-control"
                     value={this.state.username}
                     onChange={this.onChangeUsername}>
+                        {/* This is the code that generates the user name options. It creates an array of JSX code bits.  SAVE THIS. */}
                         {
                             this.state.users.map(function(user) {
                                 return <option key={user} value={user}>{user}</option>
@@ -98,7 +111,7 @@ export default class CreateExercise extends Component {
                     </div>
                 </div>
                 <div className = "form-group">
-                    <input type ="submit" value = "Do eeeet" className="btn btn-primary" onSubmit={this.onSubmit} />
+                    <input type ="submit" value = "Do eeeet" className="btn btn-primary" />
                 </div>
 
 
